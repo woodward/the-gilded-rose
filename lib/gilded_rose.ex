@@ -20,8 +20,12 @@ defmodule GildedRose do
 
   def items(agent), do: Agent.get(agent, & &1)
 
-  def item(agent, index) do
+  def item(agent, index) when is_integer(index) do
     agent |> items() |> Enum.at(index)
+  end
+
+  def item(agent, start_of_name) when is_binary(start_of_name) do
+    agent |> items() |> Enum.find(&String.starts_with?(&1.name, start_of_name))
   end
 
   def update_quality_n_days(agent, n_days) do

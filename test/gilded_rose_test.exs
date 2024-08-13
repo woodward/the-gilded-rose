@@ -48,6 +48,16 @@ defmodule GildedRoseTest do
       mongoose = GildedRose.item(gilded_rose, 2)
       assert mongoose.name == "Elixir of the Mongoose"
     end
+
+    test "works with the start of a name" do
+      gilded_rose = GildedRose.new()
+
+      dexterity_vest = GildedRose.item(gilded_rose, "+5 Dexterity")
+      assert dexterity_vest.name == "+5 Dexterity Vest"
+
+      mongoose = GildedRose.item(gilded_rose, "Elixir")
+      assert mongoose.name == "Elixir of the Mongoose"
+    end
   end
 
   describe "update_quality_n_days" do
@@ -81,6 +91,7 @@ defmodule GildedRoseTest do
 
       assert :ok == GildedRose.update_quality(gilded_rose)
 
+      # Negative sell-in: now quality goes down by 2 each day:
       assert GildedRose.item(gilded_rose, 0) == %Item{
                name: "+5 Dexterity Vest",
                quality: 8,
@@ -110,6 +121,23 @@ defmodule GildedRoseTest do
                quality: 0,
                sell_in: -6
              }
+    end
+  end
+
+  describe "the quality is never negative" do
+    test "the quality stays 0 or above - dexterity vest" do
+      gilded_rose = GildedRose.new()
+      assert GildedRose.item(gilded_rose, 0).quality == 20
+      GildedRose.update_quality_n_days(gilded_rose, 100)
+      assert GildedRose.item(gilded_rose, 0).quality == 0
+    end
+
+    @tag :skip
+    test "the quality stays 0 or above - aged brie - and maxes out at 50" do
+      gilded_rose = GildedRose.new()
+      _aged_brie = GildedRose.item(gilded_rose, 1)
+      GildedRose.update_quality_n_days(gilded_rose, 49)
+      assert GildedRose.item(gilded_rose, 1).quality == 50
     end
   end
 
