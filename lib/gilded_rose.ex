@@ -20,6 +20,10 @@ defmodule GildedRose do
 
   def items(agent), do: Agent.get(agent, & &1)
 
+  def item(agent, index) do
+    agent |> items() |> Enum.at(index)
+  end
+
   def update_quality(agent) do
     for i <- 0..(Agent.get(agent, &length/1) - 1) do
       item = Agent.get(agent, &Enum.at(&1, i))

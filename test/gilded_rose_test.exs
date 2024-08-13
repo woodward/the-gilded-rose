@@ -36,6 +36,18 @@ defmodule GildedRoseTest do
     end
   end
 
+  describe "add an item/2 function (to aid in testing)" do
+    test "returns the element at the nth element" do
+      gilded_rose = GildedRose.new()
+
+      dexterity_vest = GildedRose.item(gilded_rose, 0)
+      assert dexterity_vest.name == "+5 Dexterity Vest"
+
+      mongoose = GildedRose.item(gilded_rose, 2)
+      assert mongoose.name == "Elixir of the Mongoose"
+    end
+  end
+
   # ================================================================================================
 
   def initial do
