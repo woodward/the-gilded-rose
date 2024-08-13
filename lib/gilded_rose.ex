@@ -24,6 +24,13 @@ defmodule GildedRose do
     agent |> items() |> Enum.at(index)
   end
 
+  def update_quality_n_days(agent, n_days) do
+    1..n_days
+    |> Enum.map(fn _index ->
+      update_quality(agent)
+    end)
+  end
+
   def update_quality(agent) do
     for i <- 0..(Agent.get(agent, &length/1) - 1) do
       item = Agent.get(agent, &Enum.at(&1, i))

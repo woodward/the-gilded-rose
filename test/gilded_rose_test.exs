@@ -2,6 +2,8 @@ defmodule GildedRoseTest do
   use ExUnit.Case
   doctest GildedRose
 
+  alias GildedRose.Item
+
   test "interface specification" do
     gilded_rose = GildedRose.new()
     [%GildedRose.Item{} | _] = GildedRose.items(gilded_rose)
@@ -45,6 +47,69 @@ defmodule GildedRoseTest do
 
       mongoose = GildedRose.item(gilded_rose, 2)
       assert mongoose.name == "Elixir of the Mongoose"
+    end
+  end
+
+  describe "update_quality_n_days" do
+    test "does a multi-date update" do
+      gilded_rose = GildedRose.new()
+      dexterity = GildedRose.item(gilded_rose, 0)
+      assert dexterity == %Item{name: "+5 Dexterity Vest", quality: 20, sell_in: 10}
+
+      GildedRose.update_quality_n_days(gilded_rose, 10)
+
+      assert GildedRose.item(gilded_rose, 0) == %Item{
+               name: "+5 Dexterity Vest",
+               quality: 10,
+               sell_in: 0
+             }
+    end
+  end
+
+  describe "+5 Dexterity Vest" do
+    test "decreases quality and sell-in days" do
+      gilded_rose = GildedRose.new()
+      dexterity = GildedRose.item(gilded_rose, 0)
+      assert dexterity == %Item{name: "+5 Dexterity Vest", quality: 20, sell_in: 10}
+      GildedRose.update_quality_n_days(gilded_rose, 10)
+
+      assert GildedRose.item(gilded_rose, 0) == %Item{
+               name: "+5 Dexterity Vest",
+               quality: 10,
+               sell_in: 0
+             }
+
+      assert :ok == GildedRose.update_quality(gilded_rose)
+
+      assert GildedRose.item(gilded_rose, 0) == %Item{
+               name: "+5 Dexterity Vest",
+               quality: 8,
+               sell_in: -1
+             }
+
+      assert :ok == GildedRose.update_quality(gilded_rose)
+
+      assert GildedRose.item(gilded_rose, 0) == %Item{
+               name: "+5 Dexterity Vest",
+               quality: 6,
+               sell_in: -2
+             }
+
+      GildedRose.update_quality_n_days(gilded_rose, 3)
+
+      assert GildedRose.item(gilded_rose, 0) == %Item{
+               name: "+5 Dexterity Vest",
+               quality: 0,
+               sell_in: -5
+             }
+
+      assert :ok == GildedRose.update_quality(gilded_rose)
+
+      assert GildedRose.item(gilded_rose, 0) == %Item{
+               name: "+5 Dexterity Vest",
+               quality: 0,
+               sell_in: -6
+             }
     end
   end
 
