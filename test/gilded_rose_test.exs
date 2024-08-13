@@ -60,13 +60,13 @@ defmodule GildedRoseTest do
     end
   end
 
-  describe "update_quality_n_days" do
+  describe "update_n_days" do
     test "does a multi-date update" do
       gilded_rose = GildedRose.new()
       dexterity = GildedRose.item(gilded_rose, 0)
       assert dexterity == %Item{name: "+5 Dexterity Vest", quality: 20, sell_in: 10}
 
-      GildedRose.update_quality_n_days(gilded_rose, 10)
+      GildedRose.update_n_days(gilded_rose, 10)
 
       assert GildedRose.item(gilded_rose, 0) == %Item{
                name: "+5 Dexterity Vest",
@@ -81,46 +81,24 @@ defmodule GildedRoseTest do
       gilded_rose = GildedRose.new()
       dexterity = GildedRose.item(gilded_rose, 0)
       assert dexterity == %Item{name: "+5 Dexterity Vest", quality: 20, sell_in: 10}
-      GildedRose.update_quality_n_days(gilded_rose, 10)
-
-      assert GildedRose.item(gilded_rose, 0) == %Item{
-               name: "+5 Dexterity Vest",
-               quality: 10,
-               sell_in: 0
-             }
+      GildedRose.update_n_days(gilded_rose, 10)
+      assert_item("+5 Dexterity Vest", gilded_rose, sell_in: 0, quality: 10)
 
       assert :ok == GildedRose.update_quality(gilded_rose)
 
       # Negative sell-in: now quality goes down by 2 each day:
-      assert GildedRose.item(gilded_rose, 0) == %Item{
-               name: "+5 Dexterity Vest",
-               quality: 8,
-               sell_in: -1
-             }
+      assert_item("+5 Dexterity Vest", gilded_rose, sell_in: -1, quality: 8)
+
+      assert :ok == GildedRose.update_quality(gilded_rose)
+      assert_item("+5 Dexterity Vest", gilded_rose, sell_in: -2, quality: 6)
+
+      GildedRose.update_n_days(gilded_rose, 3)
+      assert_item("+5 Dexterity Vest", gilded_rose, sell_in: -5, quality: 0)
 
       assert :ok == GildedRose.update_quality(gilded_rose)
 
-      assert GildedRose.item(gilded_rose, 0) == %Item{
-               name: "+5 Dexterity Vest",
-               quality: 6,
-               sell_in: -2
-             }
-
-      GildedRose.update_quality_n_days(gilded_rose, 3)
-
-      assert GildedRose.item(gilded_rose, 0) == %Item{
-               name: "+5 Dexterity Vest",
-               quality: 0,
-               sell_in: -5
-             }
-
-      assert :ok == GildedRose.update_quality(gilded_rose)
-
-      assert GildedRose.item(gilded_rose, 0) == %Item{
-               name: "+5 Dexterity Vest",
-               quality: 0,
-               sell_in: -6
-             }
+      # Quality never goes below zero:
+      assert_item("+5 Dexterity Vest", gilded_rose, sell_in: -6, quality: 0)
     end
   end
 
@@ -128,7 +106,7 @@ defmodule GildedRoseTest do
     test "the quality stays 0 or above - dexterity vest" do
       gilded_rose = GildedRose.new()
       assert GildedRose.item(gilded_rose, 0).quality == 20
-      GildedRose.update_quality_n_days(gilded_rose, 100)
+      GildedRose.update_n_days(gilded_rose, 100)
       assert GildedRose.item(gilded_rose, 0).quality == 0
     end
 
@@ -136,7 +114,7 @@ defmodule GildedRoseTest do
     test "the quality stays 0 or above - aged brie - and maxes out at 50" do
       gilded_rose = GildedRose.new()
       _aged_brie = GildedRose.item(gilded_rose, 1)
-      GildedRose.update_quality_n_days(gilded_rose, 49)
+      GildedRose.update_n_days(gilded_rose, 49)
       assert GildedRose.item(gilded_rose, 1).quality == 50
     end
   end
@@ -216,5 +194,14 @@ defmodule GildedRoseTest do
       },
       %GildedRose.Item{name: "Conjured Mana Cake", sell_in: -1, quality: 1}
     ]
+  end
+
+  def assert_item(name, gilded_rose, opts) do
+    sell_in = Keyword.get(opts, :sell_in)
+    quality = Keyword.get(opts, :quality)
+    item = GildedRose.item(gilded_rose, name)
+
+    assert item.sell_in == sell_in
+    assert item.quality == quality
   end
 end

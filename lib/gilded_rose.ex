@@ -28,7 +28,7 @@ defmodule GildedRose do
     agent |> items() |> Enum.find(&String.starts_with?(&1.name, start_of_name))
   end
 
-  def update_quality_n_days(agent, n_days) do
+  def update_n_days(agent, n_days) do
     1..n_days
     |> Enum.map(fn _index ->
       update_quality(agent)
