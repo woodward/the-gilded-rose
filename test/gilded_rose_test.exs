@@ -6,12 +6,12 @@ defmodule GildedRoseTest do
 
   test "interface specification" do
     gilded_rose = GildedRose.new()
-    [%GildedRose.Item{} | _] = GildedRose.items(gilded_rose)
+    [%Item{} | _] = GildedRose.items(gilded_rose)
     assert :ok == GildedRose.update_quality(gilded_rose)
   end
 
   describe "overall behavior" do
-    test "document the existing behavior" do
+    test "document the overall existing behavior" do
       gilded_rose = GildedRose.new()
       initial_items = GildedRose.items(gilded_rose)
       assert initial_items == initial()
@@ -35,6 +35,11 @@ defmodule GildedRoseTest do
       assert :ok == GildedRose.update_quality(gilded_rose)
       step4 = GildedRose.items(gilded_rose)
       assert step4 == expected_step4()
+
+      1..50 |> Enum.each(fn _index -> assert :ok == GildedRose.update_quality(gilded_rose) end)
+
+      step54 = GildedRose.items(gilded_rose)
+      assert step54 == expected_step54()
     end
   end
 
@@ -76,8 +81,8 @@ defmodule GildedRoseTest do
     end
   end
 
-  describe "+5 Dexterity Vest" do
-    test "decreases quality and sell-in days" do
+  describe "quality checks" do
+    test "+5 Dexterity Vest - decreases quality and sell-in days" do
       gilded_rose = GildedRose.new()
       dexterity = GildedRose.item(gilded_rose, 0)
       assert dexterity == %Item{name: "+5 Dexterity Vest", quality: 20, sell_in: 10}
@@ -100,100 +105,163 @@ defmodule GildedRoseTest do
       # Quality never goes below zero:
       assert_item("+5 Dexterity Vest", gilded_rose, sell_in: -6, quality: 0)
     end
-  end
 
-  describe "the quality is never negative" do
     test "the quality stays 0 or above - dexterity vest" do
       gilded_rose = GildedRose.new()
-      assert GildedRose.item(gilded_rose, 0).quality == 20
+      assert_item("+5 Dexterity Vest", gilded_rose, sell_in: 10, quality: 20)
+
       GildedRose.update_n_days(gilded_rose, 100)
-      assert GildedRose.item(gilded_rose, 0).quality == 0
+      assert_item("+5 Dexterity Vest", gilded_rose, sell_in: -90, quality: 0)
+    end
+
+    test "the quality stays 0 or above - aged brie - and maxes out at 50" do
+      gilded_rose = GildedRose.new()
+      assert_item("Aged Brie", gilded_rose, sell_in: 2, quality: 0)
+
+      delta_quality = 1
+
+      1..2
+      |> Enum.reduce({1, 1}, fn _index, {quality, sell_in} ->
+        GildedRose.update_n_days(gilded_rose, 1)
+        assert_item("Aged Brie", gilded_rose, sell_in: sell_in, quality: quality)
+        {quality + delta_quality, sell_in - 1}
+      end)
+
+      delta_quality = 2
+
+      3..26
+      |> Enum.reduce({4, -1}, fn _index, {quality, sell_in} ->
+        GildedRose.update_n_days(gilded_rose, 1)
+        assert_item("Aged Brie", gilded_rose, sell_in: sell_in, quality: quality)
+        {quality + delta_quality, sell_in - 1}
+      end)
+
+      GildedRose.update_n_days(gilded_rose, 1)
+      assert_item("Aged Brie", gilded_rose, sell_in: -25, quality: 50)
+
+      GildedRose.update_n_days(gilded_rose, 1)
+      assert_item("Aged Brie", gilded_rose, sell_in: -26, quality: 50)
+
+      GildedRose.update_n_days(gilded_rose, 1)
+      assert_item("Aged Brie", gilded_rose, sell_in: -27, quality: 50)
+    end
+
+    test "quality for Elixir of the Mongoose" do
+      gilded_rose = GildedRose.new()
+      assert_item("Elixir", gilded_rose, sell_in: 5, quality: 7)
+
+      quality_delta = -1
+
+      1..5
+      |> Enum.reduce({6, 4}, fn _index, {quality, sell_in} ->
+        GildedRose.update_n_days(gilded_rose, 1)
+        assert_item("Elixir", gilded_rose, sell_in: sell_in, quality: quality)
+        {quality + quality_delta, sell_in - 1}
+      end)
+
+      # Note that when the sell_in is -1 then the quality goes down by 2, not 1
+
+      GildedRose.update_n_days(gilded_rose, 1)
+      assert_item("Elixir", gilded_rose, sell_in: -1, quality: 0)
+
+      GildedRose.update_n_days(gilded_rose, 1)
+      assert_item("Elixir", gilded_rose, sell_in: -2, quality: 0)
     end
 
     @tag :skip
-    test "the quality stays 0 or above - aged brie - and maxes out at 50" do
+    test "quality for conjured items - expected based on README" do
       gilded_rose = GildedRose.new()
-      _aged_brie = GildedRose.item(gilded_rose, 1)
-      GildedRose.update_n_days(gilded_rose, 49)
-      assert GildedRose.item(gilded_rose, 1).quality == 50
+      assert_item("Conjured Mana Cake", gilded_rose, sell_in: 3, quality: 6)
+
+      GildedRose.update_n_days(gilded_rose, 1)
+      assert_item("Conjured Mana Cake", gilded_rose, sell_in: 2, quality: 4)
+
+      GildedRose.update_n_days(gilded_rose, 1)
+      assert_item("Conjured Mana Cake", gilded_rose, sell_in: 1, quality: 2)
+
+      GildedRose.update_n_days(gilded_rose, 1)
+      assert_item("Conjured Mana Cake", gilded_rose, sell_in: 0, quality: 0)
+
+      GildedRose.update_n_days(gilded_rose, 1)
+      assert_item("Conjured Mana Cake", gilded_rose, sell_in: -1, quality: 0)
+
+      GildedRose.update_n_days(gilded_rose, 1)
+      assert_item("Conjured Mana Cake", gilded_rose, sell_in: -2, quality: 0)
     end
-  end
 
-  # ================================================================================================
+    test "quality for conjured items - actual current" do
+      gilded_rose = GildedRose.new()
+      assert_item("Conjured Mana Cake", gilded_rose, sell_in: 3, quality: 6)
 
-  def initial do
-    [
-      %GildedRose.Item{name: "+5 Dexterity Vest", sell_in: 10, quality: 20},
-      %GildedRose.Item{name: "Aged Brie", sell_in: 2, quality: 0},
-      %GildedRose.Item{name: "Elixir of the Mongoose", sell_in: 5, quality: 7},
-      %GildedRose.Item{name: "Sulfuras, Hand of Ragnaros", sell_in: 0, quality: 80},
-      %GildedRose.Item{
-        name: "Backstage passes to a TAFKAL80ETC concert",
-        sell_in: 15,
-        quality: 20
-      },
-      %GildedRose.Item{name: "Conjured Mana Cake", sell_in: 3, quality: 6}
-    ]
-  end
+      GildedRose.update_n_days(gilded_rose, 1)
+      assert_item("Conjured Mana Cake", gilded_rose, sell_in: 2, quality: 5)
 
-  def expected_step1 do
-    [
-      %GildedRose.Item{name: "+5 Dexterity Vest", sell_in: 9, quality: 19},
-      %GildedRose.Item{name: "Aged Brie", sell_in: 1, quality: 1},
-      %GildedRose.Item{name: "Elixir of the Mongoose", sell_in: 4, quality: 6},
-      %GildedRose.Item{name: "Sulfuras, Hand of Ragnaros", sell_in: 0, quality: 80},
-      %GildedRose.Item{
-        name: "Backstage passes to a TAFKAL80ETC concert",
-        sell_in: 14,
-        quality: 21
-      },
-      %GildedRose.Item{name: "Conjured Mana Cake", sell_in: 2, quality: 5}
-    ]
-  end
+      GildedRose.update_n_days(gilded_rose, 1)
+      assert_item("Conjured Mana Cake", gilded_rose, sell_in: 1, quality: 4)
 
-  def expected_step2 do
-    [
-      %GildedRose.Item{name: "+5 Dexterity Vest", sell_in: 8, quality: 18},
-      %GildedRose.Item{name: "Aged Brie", sell_in: 0, quality: 2},
-      %GildedRose.Item{name: "Elixir of the Mongoose", sell_in: 3, quality: 5},
-      %GildedRose.Item{name: "Sulfuras, Hand of Ragnaros", sell_in: 0, quality: 80},
-      %GildedRose.Item{
-        name: "Backstage passes to a TAFKAL80ETC concert",
-        sell_in: 13,
-        quality: 22
-      },
-      %GildedRose.Item{name: "Conjured Mana Cake", sell_in: 1, quality: 4}
-    ]
-  end
+      GildedRose.update_n_days(gilded_rose, 1)
+      assert_item("Conjured Mana Cake", gilded_rose, sell_in: 0, quality: 3)
 
-  def expected_step3 do
-    [
-      %GildedRose.Item{name: "+5 Dexterity Vest", sell_in: 7, quality: 17},
-      %GildedRose.Item{name: "Aged Brie", sell_in: -1, quality: 4},
-      %GildedRose.Item{name: "Elixir of the Mongoose", sell_in: 2, quality: 4},
-      %GildedRose.Item{name: "Sulfuras, Hand of Ragnaros", sell_in: 0, quality: 80},
-      %GildedRose.Item{
-        name: "Backstage passes to a TAFKAL80ETC concert",
-        sell_in: 12,
-        quality: 23
-      },
-      %GildedRose.Item{name: "Conjured Mana Cake", sell_in: 0, quality: 3}
-    ]
-  end
+      # Note the decrease in 2 of quality (because sell_in is -1?)
+      GildedRose.update_n_days(gilded_rose, 1)
+      assert_item("Conjured Mana Cake", gilded_rose, sell_in: -1, quality: 1)
 
-  def expected_step4 do
-    [
-      %GildedRose.Item{name: "+5 Dexterity Vest", sell_in: 6, quality: 16},
-      %GildedRose.Item{name: "Aged Brie", sell_in: -2, quality: 6},
-      %GildedRose.Item{name: "Elixir of the Mongoose", sell_in: 1, quality: 3},
-      %GildedRose.Item{name: "Sulfuras, Hand of Ragnaros", sell_in: 0, quality: 80},
-      %GildedRose.Item{
-        name: "Backstage passes to a TAFKAL80ETC concert",
-        sell_in: 11,
-        quality: 24
-      },
-      %GildedRose.Item{name: "Conjured Mana Cake", sell_in: -1, quality: 1}
-    ]
+      GildedRose.update_n_days(gilded_rose, 1)
+      assert_item("Conjured Mana Cake", gilded_rose, sell_in: -2, quality: 0)
+
+      GildedRose.update_n_days(gilded_rose, 1)
+      assert_item("Conjured Mana Cake", gilded_rose, sell_in: -3, quality: 0)
+    end
+
+    test "quality for Sulfuras - quality never goes down, and sell-in does not decrease" do
+      gilded_rose = GildedRose.new()
+      assert_item("Sulfuras", gilded_rose, sell_in: 0, quality: 80)
+
+      GildedRose.update_n_days(gilded_rose, 100)
+      assert_item("Sulfuras", gilded_rose, sell_in: 0, quality: 80)
+    end
+
+    test "quality for Backstage passes - quality increases, and then goes to zero" do
+      gilded_rose = GildedRose.new()
+      # Quality increases by 1:
+      assert_item("Backstage passes", gilded_rose, sell_in: 15, quality: 20)
+
+      GildedRose.update_n_days(gilded_rose, 1)
+      assert_item("Backstage passes", gilded_rose, sell_in: 14, quality: 21)
+
+      GildedRose.update_n_days(gilded_rose, 1)
+      assert_item("Backstage passes", gilded_rose, sell_in: 13, quality: 22)
+
+      GildedRose.update_n_days(gilded_rose, 3)
+      assert_item("Backstage passes", gilded_rose, sell_in: 10, quality: 25)
+
+      # Quality increases by 2 when there are 10 days or less:
+      GildedRose.update_n_days(gilded_rose, 1)
+      assert_item("Backstage passes", gilded_rose, sell_in: 9, quality: 27)
+
+      GildedRose.update_n_days(gilded_rose, 1)
+      assert_item("Backstage passes", gilded_rose, sell_in: 8, quality: 29)
+
+      GildedRose.update_n_days(gilded_rose, 3)
+      assert_item("Backstage passes", gilded_rose, sell_in: 5, quality: 35)
+
+      # Quality increases by 3 when there are 5 days or less:
+      GildedRose.update_n_days(gilded_rose, 1)
+      assert_item("Backstage passes", gilded_rose, sell_in: 4, quality: 38)
+
+      GildedRose.update_n_days(gilded_rose, 1)
+      assert_item("Backstage passes", gilded_rose, sell_in: 3, quality: 41)
+
+      GildedRose.update_n_days(gilded_rose, 3)
+      assert_item("Backstage passes", gilded_rose, sell_in: 0, quality: 50)
+
+      # Quality drops to zero when the concert is over:
+      GildedRose.update_n_days(gilded_rose, 1)
+      assert_item("Backstage passes", gilded_rose, sell_in: -1, quality: 0)
+
+      GildedRose.update_n_days(gilded_rose, 1)
+      assert_item("Backstage passes", gilded_rose, sell_in: -2, quality: 0)
+    end
   end
 
   def assert_item(name, gilded_rose, opts) do
@@ -203,5 +271,73 @@ defmodule GildedRoseTest do
 
     assert item.sell_in == sell_in
     assert item.quality == quality
+  end
+
+  # ================================================================================================
+
+  def initial do
+    [
+      %Item{name: "+5 Dexterity Vest", sell_in: 10, quality: 20},
+      %Item{name: "Aged Brie", sell_in: 2, quality: 0},
+      %Item{name: "Elixir of the Mongoose", sell_in: 5, quality: 7},
+      %Item{name: "Sulfuras, Hand of Ragnaros", sell_in: 0, quality: 80},
+      %Item{name: "Backstage passes to a TAFKAL80ETC concert", sell_in: 15, quality: 20},
+      %Item{name: "Conjured Mana Cake", sell_in: 3, quality: 6}
+    ]
+  end
+
+  def expected_step1 do
+    [
+      %Item{name: "+5 Dexterity Vest", sell_in: 9, quality: 19},
+      %Item{name: "Aged Brie", sell_in: 1, quality: 1},
+      %Item{name: "Elixir of the Mongoose", sell_in: 4, quality: 6},
+      %Item{name: "Sulfuras, Hand of Ragnaros", sell_in: 0, quality: 80},
+      %Item{name: "Backstage passes to a TAFKAL80ETC concert", sell_in: 14, quality: 21},
+      %Item{name: "Conjured Mana Cake", sell_in: 2, quality: 5}
+    ]
+  end
+
+  def expected_step2 do
+    [
+      %Item{name: "+5 Dexterity Vest", sell_in: 8, quality: 18},
+      %Item{name: "Aged Brie", sell_in: 0, quality: 2},
+      %Item{name: "Elixir of the Mongoose", sell_in: 3, quality: 5},
+      %Item{name: "Sulfuras, Hand of Ragnaros", sell_in: 0, quality: 80},
+      %Item{name: "Backstage passes to a TAFKAL80ETC concert", sell_in: 13, quality: 22},
+      %Item{name: "Conjured Mana Cake", sell_in: 1, quality: 4}
+    ]
+  end
+
+  def expected_step3 do
+    [
+      %Item{name: "+5 Dexterity Vest", sell_in: 7, quality: 17},
+      %Item{name: "Aged Brie", sell_in: -1, quality: 4},
+      %Item{name: "Elixir of the Mongoose", sell_in: 2, quality: 4},
+      %Item{name: "Sulfuras, Hand of Ragnaros", sell_in: 0, quality: 80},
+      %Item{name: "Backstage passes to a TAFKAL80ETC concert", sell_in: 12, quality: 23},
+      %Item{name: "Conjured Mana Cake", sell_in: 0, quality: 3}
+    ]
+  end
+
+  def expected_step4 do
+    [
+      %Item{name: "+5 Dexterity Vest", sell_in: 6, quality: 16},
+      %Item{name: "Aged Brie", sell_in: -2, quality: 6},
+      %Item{name: "Elixir of the Mongoose", sell_in: 1, quality: 3},
+      %Item{name: "Sulfuras, Hand of Ragnaros", sell_in: 0, quality: 80},
+      %Item{name: "Backstage passes to a TAFKAL80ETC concert", sell_in: 11, quality: 24},
+      %Item{name: "Conjured Mana Cake", sell_in: -1, quality: 1}
+    ]
+  end
+
+  def expected_step54 do
+    [
+      %Item{name: "+5 Dexterity Vest", quality: 0, sell_in: -44},
+      %Item{name: "Aged Brie", quality: 50, sell_in: -52},
+      %Item{name: "Elixir of the Mongoose", quality: 0, sell_in: -49},
+      %Item{name: "Sulfuras, Hand of Ragnaros", quality: 80, sell_in: 0},
+      %Item{name: "Backstage passes to a TAFKAL80ETC concert", quality: 0, sell_in: -39},
+      %Item{name: "Conjured Mana Cake", quality: 0, sell_in: -51}
+    ]
   end
 end
