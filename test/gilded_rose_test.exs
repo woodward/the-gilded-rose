@@ -11,8 +11,12 @@ defmodule GildedRoseTest do
   end
 
   describe "overall behavior" do
-    test "document the overall existing behavior" do
+    setup do
       gilded_rose = GildedRose.new()
+      [gilded_rose: gilded_rose]
+    end
+
+    test "document the overall existing behavior", %{gilded_rose: gilded_rose} do
       initial_items = GildedRose.items(gilded_rose)
       assert initial_items == initial()
 
@@ -44,9 +48,12 @@ defmodule GildedRoseTest do
   end
 
   describe "add an item/2 function (to aid in testing)" do
-    test "returns the element at the nth element" do
+    setup do
       gilded_rose = GildedRose.new()
+      [gilded_rose: gilded_rose]
+    end
 
+    test "returns the element at the nth element", %{gilded_rose: gilded_rose} do
       dexterity_vest = GildedRose.item(gilded_rose, 0)
       assert dexterity_vest.name == "+5 Dexterity Vest"
 
@@ -54,9 +61,7 @@ defmodule GildedRoseTest do
       assert mongoose.name == "Elixir of the Mongoose"
     end
 
-    test "works with the start of a name" do
-      gilded_rose = GildedRose.new()
-
+    test "works with the start of a name", %{gilded_rose: gilded_rose} do
       dexterity_vest = GildedRose.item(gilded_rose, "+5 Dexterity")
       assert dexterity_vest.name == "+5 Dexterity Vest"
 
@@ -66,8 +71,12 @@ defmodule GildedRoseTest do
   end
 
   describe "update_n_days" do
-    test "does a multi-date update" do
+    setup do
       gilded_rose = GildedRose.new()
+      [gilded_rose: gilded_rose]
+    end
+
+    test "does a multi-date update", %{gilded_rose: gilded_rose} do
       dexterity = GildedRose.item(gilded_rose, 0)
       assert dexterity == %Item{name: "+5 Dexterity Vest", quality: 20, sell_in: 10}
 
@@ -82,8 +91,12 @@ defmodule GildedRoseTest do
   end
 
   describe "quality checks" do
-    test "+5 Dexterity Vest - decreases quality and sell-in days" do
+    setup do
       gilded_rose = GildedRose.new()
+      [gilded_rose: gilded_rose]
+    end
+
+    test "+5 Dexterity Vest - decreases quality and sell-in days", %{gilded_rose: gilded_rose} do
       dexterity = GildedRose.item(gilded_rose, 0)
       assert dexterity == %Item{name: "+5 Dexterity Vest", quality: 20, sell_in: 10}
       GildedRose.update_n_days(gilded_rose, 10)
@@ -106,16 +119,16 @@ defmodule GildedRoseTest do
       assert_item("+5 Dexterity Vest", gilded_rose, sell_in: -6, quality: 0)
     end
 
-    test "the quality stays 0 or above - dexterity vest" do
-      gilded_rose = GildedRose.new()
+    test "the quality stays 0 or above - dexterity vest", %{gilded_rose: gilded_rose} do
       assert_item("+5 Dexterity Vest", gilded_rose, sell_in: 10, quality: 20)
 
       GildedRose.update_n_days(gilded_rose, 100)
       assert_item("+5 Dexterity Vest", gilded_rose, sell_in: -90, quality: 0)
     end
 
-    test "the quality stays 0 or above - aged brie - and maxes out at 50" do
-      gilded_rose = GildedRose.new()
+    test "the quality stays 0 or above - aged brie - and maxes out at 50", %{
+      gilded_rose: gilded_rose
+    } do
       assert_item("Aged Brie", gilded_rose, sell_in: 2, quality: 0)
 
       delta_quality = 1
@@ -146,8 +159,7 @@ defmodule GildedRoseTest do
       assert_item("Aged Brie", gilded_rose, sell_in: -27, quality: 50)
     end
 
-    test "quality for Elixir of the Mongoose" do
-      gilded_rose = GildedRose.new()
+    test "quality for Elixir of the Mongoose", %{gilded_rose: gilded_rose} do
       assert_item("Elixir", gilded_rose, sell_in: 5, quality: 7)
 
       quality_delta = -1
@@ -169,8 +181,7 @@ defmodule GildedRoseTest do
     end
 
     @tag :skip
-    test "quality for conjured items - expected based on README" do
-      gilded_rose = GildedRose.new()
+    test "quality for conjured items - expected based on README", %{gilded_rose: gilded_rose} do
       assert_item("Conjured Mana Cake", gilded_rose, sell_in: 3, quality: 6)
 
       GildedRose.update_n_days(gilded_rose, 1)
@@ -189,8 +200,7 @@ defmodule GildedRoseTest do
       assert_item("Conjured Mana Cake", gilded_rose, sell_in: -2, quality: 0)
     end
 
-    test "quality for conjured items - actual current" do
-      gilded_rose = GildedRose.new()
+    test "quality for conjured items - actual current", %{gilded_rose: gilded_rose} do
       assert_item("Conjured Mana Cake", gilded_rose, sell_in: 3, quality: 6)
 
       GildedRose.update_n_days(gilded_rose, 1)
@@ -213,16 +223,18 @@ defmodule GildedRoseTest do
       assert_item("Conjured Mana Cake", gilded_rose, sell_in: -3, quality: 0)
     end
 
-    test "quality for Sulfuras - quality never goes down, and sell-in does not decrease" do
-      gilded_rose = GildedRose.new()
+    test "quality for Sulfuras - quality never goes down, and sell-in does not decrease", %{
+      gilded_rose: gilded_rose
+    } do
       assert_item("Sulfuras", gilded_rose, sell_in: 0, quality: 80)
 
       GildedRose.update_n_days(gilded_rose, 100)
       assert_item("Sulfuras", gilded_rose, sell_in: 0, quality: 80)
     end
 
-    test "quality for Backstage passes - quality increases, and then goes to zero" do
-      gilded_rose = GildedRose.new()
+    test "quality for Backstage passes - quality increases, and then goes to zero", %{
+      gilded_rose: gilded_rose
+    } do
       # Quality increases by 1:
       assert_item("Backstage passes", gilded_rose, sell_in: 15, quality: 20)
 
