@@ -18,6 +18,17 @@ defmodule GildedRoseTest do
       [gilded_rose: gilded_rose]
     end
 
+    test "the order of the items does not change with updates", %{gilded_rose: gilded_rose} do
+      initial_items = GildedRose.items(gilded_rose)
+      original_order = initial_items |> Enum.map(& &1.name)
+
+      assert :ok == GildedRose.update_quality(gilded_rose)
+
+      items = GildedRose.items(gilded_rose)
+      order_after_update = items |> Enum.map(& &1.name)
+      assert order_after_update == original_order
+    end
+
     test "document the overall existing behavior", %{gilded_rose: gilded_rose} do
       initial_items = GildedRose.items(gilded_rose)
       assert initial_items == initial()
