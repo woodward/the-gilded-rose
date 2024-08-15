@@ -4,7 +4,5 @@ defmodule GildedRose.Item.Sulfuras do
   @behaviour GildedRose.Inventory
 
   @impl true
-  def increment_age_by_1_day(item) do
-    item
-  end
+  def increment_age_by_1_day(item), do: item
 end
