@@ -1,4 +1,4 @@
-defmodule ItemTypeTest do
+defmodule GildedRose.ItemTypeTest do
   use ExUnit.Case
 
   alias GildedRose.ItemType
