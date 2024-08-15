@@ -1,6 +1,5 @@
 defmodule GildedRoseTest do
   use ExUnit.Case
-  imoprt(GildedRoseTest.Helpers)
 
   alias GildedRose.Item
 
