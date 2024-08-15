@@ -1,5 +1,22 @@
 # The Gilded Rose
 
+This exercise was the [Elixir directory](https://github.com/mechanical-orchard/the-gilded-rose/tree/main/implementations/elixir) 
+from [The Gilded Rose](https://github.com/mechanical-orchard/the-gilded-rose)
+The Mechanical Orchard repo is a private fork of [lexun's repo](https://github.com/lexun/the-gilded-rose) 
+(which seems to no longer exist or is no longer public).  
+
+The original README is below; note that the checkboxes indicate that test coverage has been created for
+that particular requirement.
+
+This is my implementation of the problem in Elixir.
+
+Greg Woodward
+2024-08-16
+
+----------------------------------------------------------------------------------------------------
+
+# The Gilded Rose
+
 Hi and welcome to team Gilded Rose.
 
 As you know, we are a small inn with a prime location in a prominent city ran by
