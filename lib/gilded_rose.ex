@@ -1,9 +1,39 @@
 defmodule GildedRose do
   use Agent
+
+  alias GildedRose.Inventory
   alias GildedRose.Item
 
-  # Use this toggle to use either the old, unrefactored code or the newly refactored code:
-  @use_newly_refactored_code? false
+  # Use this to toggle between the old, unrefactored code or the newly refactored code:
+  @update_quality_fn :update_quality_old_before_refactoring
+  # @update_quality_fn :update_quality_newly_refactored
+
+  def item(agent, index) when is_integer(index) do
+    agent |> items() |> Enum.at(index)
+  end
+
+  def item(agent, start_of_name) when is_binary(start_of_name) do
+    agent |> items() |> Enum.find(&String.starts_with?(&1.name, start_of_name))
+  end
+
+  def update_n_days(agent, n_days) do
+    1..n_days
+    |> Enum.map(fn _index ->
+      update_quality(agent)
+    end)
+  end
+
+  def update_quality(agent), do: apply(__MODULE__, @update_quality_fn, [agent])
+
+  def update_quality_newly_refactored(agent) do
+    Agent.update(agent, fn items ->
+      items |> Enum.map(&Inventory.increment_age_by_1_day(&1))
+    end)
+  end
+
+  # ================================================================================================
+  # Code below this line is the original, unmodified code (other than renaming `update_quality/1`
+  # to `update_quality_old_before_refactoring/1`):
 
   def new() do
     {:ok, agent} =
@@ -22,31 +52,6 @@ defmodule GildedRose do
   end
 
   def items(agent), do: Agent.get(agent, & &1)
-
-  def item(agent, index) when is_integer(index) do
-    agent |> items() |> Enum.at(index)
-  end
-
-  def item(agent, start_of_name) when is_binary(start_of_name) do
-    agent |> items() |> Enum.find(&String.starts_with?(&1.name, start_of_name))
-  end
-
-  def update_n_days(agent, n_days) do
-    1..n_days
-    |> Enum.map(fn _index ->
-      update_quality(agent)
-    end)
-  end
-
-  def update_quality(agent) do
-    if @use_newly_refactored_code?,
-      do: update_quality_new(agent),
-      else: update_quality_old_before_refactoring(agent)
-  end
-
-  def update_quality_new(agent) do
-    agent
-  end
 
   def update_quality_old_before_refactoring(agent) do
     for i <- 0..(Agent.get(agent, &length/1) - 1) do
