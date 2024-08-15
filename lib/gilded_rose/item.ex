@@ -1,9 +1,10 @@
 defmodule GildedRose.Item do
   @moduledoc false
+
   @type t :: %__MODULE__{
           name: String.t(),
           sell_in: integer(),
-          quality: non_neg_integer()
+          quality: GildedRose.Quality.t()
         }
 
   defstruct [
