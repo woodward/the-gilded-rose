@@ -14,6 +14,6 @@ defmodule GildedRose.Inventory do
   @spec module_name_for_item_type(ItemType.t()) :: module()
   def module_name_for_item_type(item_type) do
     module = item_type |> Atom.to_string() |> Macro.camelize()
-    Module.concat(GildedRose, module)
+    Module.concat([Item, module])
   end
 end
