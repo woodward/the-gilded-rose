@@ -9,6 +9,7 @@ defmodule GildedRose.QualityTest do
     end
 
     test "maxes out at 50" do
+      assert Quality.increase_by_one(48) == 49
       assert Quality.increase_by_one(49) == 50
       assert Quality.increase_by_one(50) == 50
     end
@@ -20,9 +21,24 @@ defmodule GildedRose.QualityTest do
     end
 
     test "maxes out at 50" do
+      assert Quality.increase_by_two(47) == 49
       assert Quality.increase_by_two(48) == 50
       assert Quality.increase_by_two(49) == 50
       assert Quality.increase_by_two(50) == 50
+    end
+  end
+
+  describe "increase_by_three/1" do
+    test "increases the age by two" do
+      assert Quality.increase_by_three(10) == 13
+    end
+
+    test "maxes out at 50" do
+      assert Quality.increase_by_three(46) == 49
+      assert Quality.increase_by_three(47) == 50
+      assert Quality.increase_by_three(48) == 50
+      assert Quality.increase_by_three(49) == 50
+      assert Quality.increase_by_three(50) == 50
     end
   end
 
