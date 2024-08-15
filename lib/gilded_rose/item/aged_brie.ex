@@ -1,5 +1,10 @@
 defmodule GildedRose.Item.AgedBrie do
-  @moduledoc false
+  @moduledoc """
+  From the `README`:
+
+  - "Aged Brie" actually increases in _quality_ the older it gets
+
+  """
 
   @behaviour GildedRose.Inventory
 

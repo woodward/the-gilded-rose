@@ -41,6 +41,7 @@ First an introduction to our system:
 Pretty simple, right? Well this is where it gets interesting:
 
 - [x] Once the _sell_in_ days is less then zero, _quality_ degrades twice as fast
+  GW: Current code seems to do less than or equal to zero (verify) for a generic item
 
 - [x] The _quality_ of an item is never negative
 
@@ -59,7 +60,7 @@ We have recently signed a supplier of conjured items. This requires an update to
 our system:
 
 - [x] "Conjured" items degrade in _quality_ twice as fast as normal items
-  GW: The current behavior of the code does not match up with this.
+  GW: The current behavior of the code does not match up with this (verify)
 
 Feel free to make any changes to the _updateQuality_ method and add any new code
 as long as everything still works correctly. However, do not alter the _Item_

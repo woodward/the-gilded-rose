@@ -1,5 +1,7 @@
 defmodule GildedRose.ItemType do
-  @moduledoc false
+  @moduledoc """
+  Types of Items
+  """
 
   @type t :: :generic | :aged_brie | :sulfuras | :backstage_passes | :conjured
 

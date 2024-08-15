@@ -1,5 +1,8 @@
 defmodule GildedRose.Item do
-  @moduledoc false
+  @moduledoc """
+  OK, so I know that we're not supposed to modify this file (so sue me), but the only thing I added
+  was a type `t()` which helps out the dialyzer.
+  """
 
   @type t :: %__MODULE__{
           name: String.t(),

@@ -1,5 +1,9 @@
 defmodule GildedRose.Item.Sulfuras do
-  @moduledoc false
+  @moduledoc """
+  From the `README`:
+
+  "Sulfuras" is a legendary item and as such its _quality_ is 80 and it never alters.
+  """
 
   @behaviour GildedRose.Inventory
 
