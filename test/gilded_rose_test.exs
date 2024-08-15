@@ -1,6 +1,6 @@
 defmodule GildedRoseTest do
   use ExUnit.Case
-  doctest GildedRose
+  imoprt(GildedRoseTest.Helpers)
 
   alias GildedRose.Item
 
@@ -9,6 +9,9 @@ defmodule GildedRoseTest do
     [%Item{} | _] = GildedRose.items(gilded_rose)
     assert :ok == GildedRose.update_quality(gilded_rose)
   end
+
+  # ================================================================================================
+  # Everything below this line has been added as additional test coverage
 
   describe "overall behavior" do
     setup do
