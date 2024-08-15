@@ -2,6 +2,9 @@ defmodule GildedRose do
   use Agent
   alias GildedRose.Item
 
+  # Use this toggle to use either the old, unrefactored code or the newly refactored code:
+  @use_newly_refactored_code? false
+
   def new() do
     {:ok, agent} =
       Agent.start_link(fn ->
@@ -36,6 +39,16 @@ defmodule GildedRose do
   end
 
   def update_quality(agent) do
+    if @use_newly_refactored_code?,
+      do: update_quality_new(agent),
+      else: update_quality_old_before_refactoring(agent)
+  end
+
+  def update_quality_new(agent) do
+    agent
+  end
+
+  def update_quality_old_before_refactoring(agent) do
     for i <- 0..(Agent.get(agent, &length/1) - 1) do
       item = Agent.get(agent, &Enum.at(&1, i))
 
