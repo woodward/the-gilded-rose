@@ -20,6 +20,8 @@ defmodule GildedRose.Item.Conjured do
     %{item | sell_in: item.sell_in - 1, quality: quality(item.sell_in, item.quality)}
   end
 
+  # Note that both the new conjured behavior and the old, existing behavior are here so that the newly
+  # refactored code can be run against the existing integration tests (when new_conjured_behavior? == false)
   if @new_conjured_behavior? do
     # New behavior based on the README:
     @spec quality(integer(), Quality.t()) :: Quality.t()
