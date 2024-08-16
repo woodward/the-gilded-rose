@@ -193,47 +193,48 @@ defmodule GildedRoseTest do
       assert_item("Elixir", gilded_rose, sell_in: -2, quality: 0)
     end
 
-    @tag :skip
-    test "quality for conjured items - expected based on README", %{gilded_rose: gilded_rose} do
-      assert_item("Conjured Mana Cake", gilded_rose, sell_in: 3, quality: 6)
+    test "quality for conjured items", %{gilded_rose: gilded_rose} do
+      if new_conjured_behavior?() do
+        #  Expected based on README
+        assert_item("Conjured Mana Cake", gilded_rose, sell_in: 3, quality: 6)
 
-      GildedRose.update_n_days(gilded_rose, 1)
-      assert_item("Conjured Mana Cake", gilded_rose, sell_in: 2, quality: 4)
+        GildedRose.update_n_days(gilded_rose, 1)
+        assert_item("Conjured Mana Cake", gilded_rose, sell_in: 2, quality: 4)
 
-      GildedRose.update_n_days(gilded_rose, 1)
-      assert_item("Conjured Mana Cake", gilded_rose, sell_in: 1, quality: 2)
+        GildedRose.update_n_days(gilded_rose, 1)
+        assert_item("Conjured Mana Cake", gilded_rose, sell_in: 1, quality: 2)
 
-      GildedRose.update_n_days(gilded_rose, 1)
-      assert_item("Conjured Mana Cake", gilded_rose, sell_in: 0, quality: 0)
+        GildedRose.update_n_days(gilded_rose, 1)
+        assert_item("Conjured Mana Cake", gilded_rose, sell_in: 0, quality: 0)
 
-      GildedRose.update_n_days(gilded_rose, 1)
-      assert_item("Conjured Mana Cake", gilded_rose, sell_in: -1, quality: 0)
+        GildedRose.update_n_days(gilded_rose, 1)
+        assert_item("Conjured Mana Cake", gilded_rose, sell_in: -1, quality: 0)
 
-      GildedRose.update_n_days(gilded_rose, 1)
-      assert_item("Conjured Mana Cake", gilded_rose, sell_in: -2, quality: 0)
-    end
+        GildedRose.update_n_days(gilded_rose, 1)
+        assert_item("Conjured Mana Cake", gilded_rose, sell_in: -2, quality: 0)
+      else
+        # quality for conjured items - actual current", %{gilded_rose: gilded_rose
+        assert_item("Conjured Mana Cake", gilded_rose, sell_in: 3, quality: 6)
 
-    test "quality for conjured items - actual current", %{gilded_rose: gilded_rose} do
-      assert_item("Conjured Mana Cake", gilded_rose, sell_in: 3, quality: 6)
+        GildedRose.update_n_days(gilded_rose, 1)
+        assert_item("Conjured Mana Cake", gilded_rose, sell_in: 2, quality: 5)
 
-      GildedRose.update_n_days(gilded_rose, 1)
-      assert_item("Conjured Mana Cake", gilded_rose, sell_in: 2, quality: 5)
+        GildedRose.update_n_days(gilded_rose, 1)
+        assert_item("Conjured Mana Cake", gilded_rose, sell_in: 1, quality: 4)
 
-      GildedRose.update_n_days(gilded_rose, 1)
-      assert_item("Conjured Mana Cake", gilded_rose, sell_in: 1, quality: 4)
+        GildedRose.update_n_days(gilded_rose, 1)
+        assert_item("Conjured Mana Cake", gilded_rose, sell_in: 0, quality: 3)
 
-      GildedRose.update_n_days(gilded_rose, 1)
-      assert_item("Conjured Mana Cake", gilded_rose, sell_in: 0, quality: 3)
+        # Note the decrease in 2 of quality (because sell_in is -1?)
+        GildedRose.update_n_days(gilded_rose, 1)
+        assert_item("Conjured Mana Cake", gilded_rose, sell_in: -1, quality: 1)
 
-      # Note the decrease in 2 of quality (because sell_in is -1?)
-      GildedRose.update_n_days(gilded_rose, 1)
-      assert_item("Conjured Mana Cake", gilded_rose, sell_in: -1, quality: 1)
+        GildedRose.update_n_days(gilded_rose, 1)
+        assert_item("Conjured Mana Cake", gilded_rose, sell_in: -2, quality: 0)
 
-      GildedRose.update_n_days(gilded_rose, 1)
-      assert_item("Conjured Mana Cake", gilded_rose, sell_in: -2, quality: 0)
-
-      GildedRose.update_n_days(gilded_rose, 1)
-      assert_item("Conjured Mana Cake", gilded_rose, sell_in: -3, quality: 0)
+        GildedRose.update_n_days(gilded_rose, 1)
+        assert_item("Conjured Mana Cake", gilded_rose, sell_in: -3, quality: 0)
+      end
     end
 
     test "quality for Sulfuras - quality never goes down, and sell-in does not decrease", %{
@@ -301,68 +302,114 @@ defmodule GildedRoseTest do
   # ================================================================================================
 
   def initial do
+    conjured =
+      if new_conjured_behavior?() do
+        %Item{name: "Conjured Mana Cake", sell_in: 3, quality: 6}
+      else
+        %Item{name: "Conjured Mana Cake", sell_in: 3, quality: 6}
+      end
+
     [
       %Item{name: "+5 Dexterity Vest", sell_in: 10, quality: 20},
       %Item{name: "Aged Brie", sell_in: 2, quality: 0},
       %Item{name: "Elixir of the Mongoose", sell_in: 5, quality: 7},
       %Item{name: "Sulfuras, Hand of Ragnaros", sell_in: 0, quality: 80},
       %Item{name: "Backstage passes to a TAFKAL80ETC concert", sell_in: 15, quality: 20},
-      %Item{name: "Conjured Mana Cake", sell_in: 3, quality: 6}
+      conjured
     ]
   end
 
   def expected_step1 do
+    conjured =
+      if new_conjured_behavior?() do
+        %Item{name: "Conjured Mana Cake", sell_in: 2, quality: 4}
+      else
+        %Item{name: "Conjured Mana Cake", sell_in: 2, quality: 5}
+      end
+
     [
       %Item{name: "+5 Dexterity Vest", sell_in: 9, quality: 19},
       %Item{name: "Aged Brie", sell_in: 1, quality: 1},
       %Item{name: "Elixir of the Mongoose", sell_in: 4, quality: 6},
       %Item{name: "Sulfuras, Hand of Ragnaros", sell_in: 0, quality: 80},
       %Item{name: "Backstage passes to a TAFKAL80ETC concert", sell_in: 14, quality: 21},
-      %Item{name: "Conjured Mana Cake", sell_in: 2, quality: 5}
+      conjured
     ]
   end
 
   def expected_step2 do
+    conjured =
+      if new_conjured_behavior?() do
+        %Item{name: "Conjured Mana Cake", sell_in: 1, quality: 2}
+      else
+        %Item{name: "Conjured Mana Cake", sell_in: 1, quality: 4}
+      end
+
     [
       %Item{name: "+5 Dexterity Vest", sell_in: 8, quality: 18},
       %Item{name: "Aged Brie", sell_in: 0, quality: 2},
       %Item{name: "Elixir of the Mongoose", sell_in: 3, quality: 5},
       %Item{name: "Sulfuras, Hand of Ragnaros", sell_in: 0, quality: 80},
       %Item{name: "Backstage passes to a TAFKAL80ETC concert", sell_in: 13, quality: 22},
-      %Item{name: "Conjured Mana Cake", sell_in: 1, quality: 4}
+      conjured
     ]
   end
 
   def expected_step3 do
+    conjured =
+      if new_conjured_behavior?() do
+        %Item{name: "Conjured Mana Cake", sell_in: 0, quality: 0}
+      else
+        %Item{name: "Conjured Mana Cake", sell_in: 0, quality: 3}
+      end
+
     [
       %Item{name: "+5 Dexterity Vest", sell_in: 7, quality: 17},
       %Item{name: "Aged Brie", sell_in: -1, quality: 4},
       %Item{name: "Elixir of the Mongoose", sell_in: 2, quality: 4},
       %Item{name: "Sulfuras, Hand of Ragnaros", sell_in: 0, quality: 80},
       %Item{name: "Backstage passes to a TAFKAL80ETC concert", sell_in: 12, quality: 23},
-      %Item{name: "Conjured Mana Cake", sell_in: 0, quality: 3}
+      conjured
     ]
   end
 
   def expected_step4 do
+    conjured =
+      if new_conjured_behavior?() do
+        %Item{name: "Conjured Mana Cake", sell_in: -1, quality: 0}
+      else
+        %Item{name: "Conjured Mana Cake", sell_in: -1, quality: 1}
+      end
+
     [
       %Item{name: "+5 Dexterity Vest", sell_in: 6, quality: 16},
       %Item{name: "Aged Brie", sell_in: -2, quality: 6},
       %Item{name: "Elixir of the Mongoose", sell_in: 1, quality: 3},
       %Item{name: "Sulfuras, Hand of Ragnaros", sell_in: 0, quality: 80},
       %Item{name: "Backstage passes to a TAFKAL80ETC concert", sell_in: 11, quality: 24},
-      %Item{name: "Conjured Mana Cake", sell_in: -1, quality: 1}
+      conjured
     ]
   end
 
   def expected_step54 do
+    conjured =
+      if new_conjured_behavior?() do
+        %Item{name: "Conjured Mana Cake", quality: 0, sell_in: -51}
+      else
+        %Item{name: "Conjured Mana Cake", quality: 0, sell_in: -51}
+      end
+
     [
       %Item{name: "+5 Dexterity Vest", quality: 0, sell_in: -44},
       %Item{name: "Aged Brie", quality: 50, sell_in: -52},
       %Item{name: "Elixir of the Mongoose", quality: 0, sell_in: -49},
       %Item{name: "Sulfuras, Hand of Ragnaros", quality: 80, sell_in: 0},
       %Item{name: "Backstage passes to a TAFKAL80ETC concert", quality: 0, sell_in: -39},
-      %Item{name: "Conjured Mana Cake", quality: 0, sell_in: -51}
+      conjured
     ]
+  end
+
+  def new_conjured_behavior? do
+    Application.get_env(:gilded_rose, :new_conjured_behavior?)
   end
 end
