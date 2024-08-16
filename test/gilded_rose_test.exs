@@ -410,6 +410,7 @@ defmodule GildedRoseTest do
   end
 
   def new_conjured_behavior? do
-    Application.get_env(:gilded_rose, :new_conjured_behavior?)
+    Application.get_env(:gilded_rose, :new_conjured_behavior?) &&
+      Application.get_env(:gilded_rose, :update_quality_fn) == :update_quality_newly_refactored
   end
 end
