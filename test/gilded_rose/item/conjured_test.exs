@@ -6,7 +6,9 @@ defmodule GildedRose.Item.ConjuredTest do
   alias GildedRose.Item.Conjured
 
   describe "does the rules for conjured item" do
-    test "the quality goes down more quickly" do
+    # This is the expected behavior based on the README, but not what is in the current code
+    @tag :skip
+    test "the quality goes down more quickly - behavior based on README" do
       item = %Item{name: "Conjured Mana Cake", sell_in: 3, quality: 6}
 
       item = Conjured.increment_age_by_1_day(item)
@@ -22,7 +24,9 @@ defmodule GildedRose.Item.ConjuredTest do
       assert_item(item, sell_in: -1, quality: 0)
     end
 
-    test "the quality goes down twice as quickly once the sell-in is below zero" do
+    # This is the expected behavior based on the README, but not what is in the current code
+    @tag :skip
+    test "the quality goes down twice as quickly once the sell-in is below zero - behavior based on README" do
       item = %Item{name: "Conjured Mana Cake", sell_in: 1, quality: 12}
 
       item = Conjured.increment_age_by_1_day(item)
@@ -36,6 +40,41 @@ defmodule GildedRose.Item.ConjuredTest do
 
       item = Conjured.increment_age_by_1_day(item)
       assert_item(item, sell_in: -3, quality: 0)
+    end
+
+    test "the quality goes down more quickly - behavior of the current code (NOT what is descrbed in the README)" do
+      item = %Item{name: "Conjured Mana Cake", sell_in: 3, quality: 2}
+
+      item = Conjured.increment_age_by_1_day(item)
+      assert_item(item, sell_in: 2, quality: 1)
+
+      item = Conjured.increment_age_by_1_day(item)
+      assert_item(item, sell_in: 1, quality: 0)
+
+      item = Conjured.increment_age_by_1_day(item)
+      assert_item(item, sell_in: 0, quality: 0)
+
+      item = Conjured.increment_age_by_1_day(item)
+      assert_item(item, sell_in: -1, quality: 0)
+    end
+
+    test "the quality goes down twice as quickly once the sell-in is below zero - behavior of the current code (NOT what is descrbed in the README)" do
+      item = %Item{name: "Conjured Mana Cake", sell_in: 1, quality: 6}
+
+      item = Conjured.increment_age_by_1_day(item)
+      assert_item(item, sell_in: 0, quality: 5)
+
+      item = Conjured.increment_age_by_1_day(item)
+      assert_item(item, sell_in: -1, quality: 3)
+
+      item = Conjured.increment_age_by_1_day(item)
+      assert_item(item, sell_in: -2, quality: 1)
+
+      item = Conjured.increment_age_by_1_day(item)
+      assert_item(item, sell_in: -3, quality: 0)
+
+      item = Conjured.increment_age_by_1_day(item)
+      assert_item(item, sell_in: -4, quality: 0)
     end
   end
 end

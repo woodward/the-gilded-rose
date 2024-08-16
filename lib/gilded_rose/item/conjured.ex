@@ -16,7 +16,13 @@ defmodule GildedRose.Item.Conjured do
     %{item | sell_in: item.sell_in - 1, quality: quality(item.sell_in, item.quality)}
   end
 
+  # Existing behavior:
   @spec quality(integer(), Quality.t()) :: Quality.t()
-  defp quality(sell_in, quality) when sell_in >= 1, do: Quality.decrease_by_two(quality)
-  defp quality(_sell_in, quality), do: Quality.decrease_by_four(quality)
+  defp quality(sell_in, quality) when sell_in >= 1, do: Quality.decrease_by_one(quality)
+  defp quality(_sell_in, quality), do: Quality.decrease_by_two(quality)
+
+  # New behavior based on the README:
+  # @spec quality(integer(), Quality.t()) :: Quality.t()
+  # defp quality(sell_in, quality) when sell_in >= 1, do: Quality.decrease_by_two(quality)
+  # defp quality(_sell_in, quality), do: Quality.decrease_by_four(quality)
 end

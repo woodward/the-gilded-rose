@@ -5,8 +5,8 @@ defmodule GildedRose do
   alias GildedRose.Item
 
   # Use this to toggle between the old, unrefactored code or the newly refactored code:
-  @update_quality_fn :update_quality_old_before_refactoring
-  # @update_quality_fn :update_quality_newly_refactored
+  # @update_quality_fn :update_quality_old_before_refactoring
+  @update_quality_fn :update_quality_newly_refactored
 
   @spec item(GenServer.server(), integer() | binary()) :: Item.t()
   def item(agent, index) when is_integer(index) do
