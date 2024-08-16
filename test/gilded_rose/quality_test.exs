@@ -64,4 +64,19 @@ defmodule GildedRose.QualityTest do
       assert Quality.decrease_by_two(0) == 0
     end
   end
+
+  describe "decrease_by_four/1" do
+    test "decreases the age by four" do
+      assert Quality.decrease_by_four(10) == 6
+    end
+
+    test "does not go below zero" do
+      assert Quality.decrease_by_four(5) == 1
+      assert Quality.decrease_by_four(4) == 0
+      assert Quality.decrease_by_four(3) == 0
+      assert Quality.decrease_by_four(2) == 0
+      assert Quality.decrease_by_four(1) == 0
+      assert Quality.decrease_by_four(0) == 0
+    end
+  end
 end

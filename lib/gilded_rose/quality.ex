@@ -34,4 +34,8 @@ defmodule GildedRose.Quality do
   @spec decrease_by_two(t()) :: t()
   def decrease_by_two(quality) when quality <= @min + 2, do: @min
   def decrease_by_two(quality), do: quality - 2
+
+  @spec decrease_by_four(t()) :: t()
+  def decrease_by_four(quality) when quality <= @min + 4, do: @min
+  def decrease_by_four(quality), do: quality - 4
 end
