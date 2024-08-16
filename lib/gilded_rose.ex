@@ -4,10 +4,6 @@ defmodule GildedRose do
   alias GildedRose.Inventory
   alias GildedRose.Item
 
-  # Use this to toggle between the old, unrefactored code or the newly refactored code:
-  # @update_quality_fn :update_quality_old_before_refactoring
-  @update_quality_fn :update_quality_newly_refactored
-
   @spec item(GenServer.server(), integer() | binary()) :: Item.t()
   def item(agent, index) when is_integer(index) do
     agent |> items() |> Enum.at(index)
@@ -28,7 +24,7 @@ defmodule GildedRose do
   end
 
   @spec update_quality(GenServer.server()) :: :ok
-  def update_quality(agent), do: apply(__MODULE__, @update_quality_fn, [agent])
+  def update_quality(agent), do: apply(__MODULE__, update_quality_fn(), [agent])
 
   @spec update_quality_newly_refactored(GenServer.server()) :: :ok
   def update_quality_newly_refactored(agent) do
@@ -36,6 +32,8 @@ defmodule GildedRose do
       items |> Enum.map(&Inventory.increment_age_by_1_day(&1))
     end)
   end
+
+  defp update_quality_fn, do: Application.get_env(:gilded_rose, :update_quality_fn)
 
   # ================================================================================================
   # Code below this line is the original, unmodified code (other than renaming `update_quality/1`
