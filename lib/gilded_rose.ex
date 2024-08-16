@@ -8,6 +8,7 @@ defmodule GildedRose do
   @update_quality_fn :update_quality_old_before_refactoring
   # @update_quality_fn :update_quality_newly_refactored
 
+  @spec item(GenServer.server(), integer() | binary()) :: Item.t()
   def item(agent, index) when is_integer(index) do
     agent |> items() |> Enum.at(index)
   end
@@ -16,15 +17,20 @@ defmodule GildedRose do
     agent |> items() |> Enum.find(&String.starts_with?(&1.name, start_of_name))
   end
 
+  @spec update_n_days(GenServer.server(), integer()) :: :ok
   def update_n_days(agent, n_days) do
     1..n_days
     |> Enum.map(fn _index ->
       update_quality(agent)
     end)
+
+    :ok
   end
 
+  @spec update_quality(GenServer.server()) :: :ok
   def update_quality(agent), do: apply(__MODULE__, @update_quality_fn, [agent])
 
+  @spec update_quality_newly_refactored(GenServer.server()) :: :ok
   def update_quality_newly_refactored(agent) do
     Agent.update(agent, fn items ->
       items |> Enum.map(&Inventory.increment_age_by_1_day(&1))
