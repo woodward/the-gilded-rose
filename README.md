@@ -60,7 +60,6 @@ We have recently signed a supplier of conjured items. This requires an update to
 our system:
 
 - [x] "Conjured" items degrade in _quality_ twice as fast as normal items
-  GW: The current behavior of the code does not match up with this (verify)
 
 Feel free to make any changes to the _updateQuality_ method and add any new code
 as long as everything still works correctly. However, do not alter the _Item_
